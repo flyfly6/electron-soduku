@@ -10,12 +10,15 @@ export default {
   data () {
     return {
       matrix: [],
-      times: 0
+      times: 0,
+      mode: 1
     }
   },
+  computed: {},
   mounted () {
     this.$electron.ipcRenderer.on('new-game', (event, mode) => {
       console.log(`new game, mode: ${mode}`)
+      this.mode = mode
       this.init()
     })
   },
@@ -27,12 +30,12 @@ export default {
     init () {
       this.clear()
       while (this.matrix.length < 9) {
-        if (this.times > 100) {
-          console.log(`tried 100 times.`)
+        this.times += 1
+        if (this.times > 230) {
+          console.log(`tried 230 times, restart generating.`)
           this.times = 0
           this.matrix = []
         }
-        this.times += 1
         if (this.matrix.length === 0) {
           this.matrix.push(this.shuffle())
         } else {
@@ -55,7 +58,7 @@ export default {
           }
         }
       }
-      console.log(this.times)
+      this.log(`tried ${this.times} times`)
     },
     shuffle () {
       const result = [1, 2, 3, 4, 5, 6, 7, 8, 9]

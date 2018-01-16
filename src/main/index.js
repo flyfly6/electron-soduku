@@ -57,9 +57,15 @@ const template = [
           window.webContents.send('new-game', mode)
         }
       },
+      {
+        label: 'Restart',
+        click (item, window, event) {
+          window.webContents.send('restart')
+        }
+      },
       { type: 'separator' },
       {
-        label: 'Simple',
+        label: 'Easy',
         type: 'radio',
         click () {
           mode = 1
@@ -73,14 +79,14 @@ const template = [
         }
       },
       {
-        label: 'Difficult',
+        label: 'Hard',
         type: 'radio',
         click () {
           mode = 3
         }
       },
       {
-        label: 'Insane',
+        label: 'Expert',
         type: 'radio',
         click () {
           mode = 4
