@@ -30,6 +30,9 @@ function createWindow () {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 app.on('ready', createWindow)
@@ -95,6 +98,3 @@ const template = [
     ]
   }
 ]
-
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
