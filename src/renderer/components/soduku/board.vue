@@ -1,7 +1,11 @@
-<template lang="pug">
-div.matrix
-  div.row(v-for="(row, rowIndex) in matrix", :key="rowIndex")
-    div.cell(v-for="(column, columnIndex) in row", :key="columnIndex") {{ column }}
+<template>
+  <div class="matrix">
+    <div class="row" v-for="(row, rowIndex) in matrix" :key="rowIndex">
+      <div class="cell" v-for="(column, columnIndex) in row" :key="columnIndex">
+        {{ column }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -32,7 +36,7 @@ export default {
       while (this.matrix.length < 9) {
         this.times += 1
         if (this.times > 230) {
-          console.log(`tried 230 times, restart generating.`)
+          console.log('tried 230 times, restart generating.')
           this.times = 0
           this.matrix = []
         }
@@ -58,13 +62,13 @@ export default {
           }
         }
       }
-      this.log(`tried ${this.times} times`)
+      console.log(`tried ${this.times} times`)
     },
     shuffle () {
       const result = [1, 2, 3, 4, 5, 6, 7, 8, 9]
       for (let i = result.length - 1; i > 0; i -= 1) {
         const j = ~~(Math.random() * i)
-        let temp = result[j]
+        const temp = result[j]
         result[j] = result[i]
         result[i] = temp
       }
@@ -84,8 +88,16 @@ export default {
         }
       }
       if (length % 3 !== 0) {
-        for (let rowIndex = 3 * ~~(length / 3); rowIndex < length; rowIndex += 1) {
-          for (let colIndex = 3 * ~~(rowLength / 3); colIndex < 3 * (~~(rowLength / 3) + 1); colIndex += 1) {
+        for (
+          let rowIndex = 3 * ~~(length / 3);
+          rowIndex < length;
+          rowIndex += 1
+        ) {
+          for (
+            let colIndex = 3 * ~~(rowLength / 3);
+            colIndex < 3 * (~~(rowLength / 3) + 1);
+            colIndex += 1
+          ) {
             if (element === this.matrix[rowIndex][colIndex]) {
               return false
             }

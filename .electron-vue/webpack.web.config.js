@@ -5,10 +5,13 @@ process.env.BABEL_ENV = 'web'
 const path = require('path')
 const webpack = require('webpack')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
+const MinifyPlugin = require("babel-minify-webpack-plugin")
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+const vueLoaderConfig = require('./vue-loader.conf')
+const utils = require('./utils')
 
 let webConfig = {
   devtool: '#cheap-module-eval-source-map',
@@ -17,6 +20,11 @@ let webConfig = {
   },
   module: {
     rules: [
+      ...utils.styleLoaders({
+        sourceMap: process.env.NODE_ENV !== 'production',
+        extract: true,
+        usePostCSS: true
+      }),
       {
         test: /\.(js|vue)$/,
         enforce: 'pre',
@@ -29,17 +37,6 @@ let webConfig = {
         }
       },
       {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: 'css-loader'
-        })
-      },
-      {
-        test: /\.html$/,
-        use: 'vue-html-loader'
-      },
-      {
         test: /\.js$/,
         use: 'babel-loader',
         include: [ path.resolve(__dirname, '../src/renderer') ],
@@ -47,15 +44,9 @@ let webConfig = {
       },
       {
         test: /\.vue$/,
-        use: {
+          use: {
           loader: 'vue-loader',
-          options: {
-            extractCSS: true,
-            loaders: {
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-style-loader!css-loader!sass-loader'
-            }
-          }
+            options: vueLoaderConfig
         }
       },
       {
@@ -64,7 +55,8 @@ let webConfig = {
           loader: 'url-loader',
           query: {
             limit: 10000,
-            name: 'imgs/[name].[ext]'
+            name: 'imgs/[name].[ext]',
+            esModule: false,
           }
         }
       },
@@ -74,14 +66,21 @@ let webConfig = {
           loader: 'url-loader',
           query: {
             limit: 10000,
-            name: 'fonts/[name].[ext]'
+            name: 'fonts/[name].[ext]',
+            esModule: false,
           }
         }
       }
     ]
   },
   plugins: [
-    new ExtractTextPlugin('styles.css'),
+    new VueLoaderPlugin(),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: utils.assetsPath('css/[name]/[name].css?[contenthash:8]'),
+      chunkFilename: utils.assetsPath('css/chunk/[name].css?[contenthash:8]')
+    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -90,14 +89,18 @@ let webConfig = {
         removeAttributeQuotes: true,
         removeComments: true
       },
+      inject: true,
       nodeModules: false
     }),
     new webpack.DefinePlugin({
       'process.env.IS_WEB': 'true'
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
   ],
+  optimization: {
+    namedModules: true,
+    noEmitOnErrors: true
+  },
   output: {
     filename: '[name].js',
     path: path.join(__dirname, '../dist/web')
@@ -107,7 +110,7 @@ let webConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'vue$': 'vue/dist/vue.esm.js'
     },
-    extensions: ['.js', '.vue', '.json', '.css']
+    extensions: ['.js', '.vue', '.json']
   },
   target: 'web'
 }
@@ -119,7 +122,7 @@ if (process.env.NODE_ENV === 'production') {
   webConfig.devtool = ''
 
   webConfig.plugins.push(
-    new BabiliWebpackPlugin(),
+    new MinifyPlugin(),
     new CopyWebpackPlugin([
       {
         from: path.join(__dirname, '../static'),

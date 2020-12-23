@@ -1,7 +1,8 @@
-<template lang="pug">
-  div
-    board
-    toolbar
+<template>
+  <div>
+    <board />
+    <toolbar />
+  </div>
 </template>
 
 <script>
